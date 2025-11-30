@@ -22,7 +22,7 @@ class Config:
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     
     # Database URL for SQLAlchemy
-    DATABASE_URL = os.getenv("DATABASE_URL") or f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}
+    DATABASE_URL = os.getenv("DATABASE_URL") or f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     
     # Channel Configuration (optional)
     CHANNEL_ID = os.getenv("CHANNEL_ID")
