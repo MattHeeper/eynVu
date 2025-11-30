@@ -48,14 +48,15 @@ def index():
 
 
 @app.route(f'/{Config.BOT_TOKEN}', methods=['POST'])
-async def webhook():
+def webhook():
     """Handle incoming updates from Telegram"""
     try:
         # Get update from request
         update = Update.de_json(request.get_json(force=True), bot_application.bot)
         
-        # Process update
-        await bot_application.process_update(update)
+        # Process update in async context
+        import asyncio
+        asyncio.run(bot_application.process_update(update))
         
         return 'ok'
     except Exception as e:
