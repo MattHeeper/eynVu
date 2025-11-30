@@ -1,0 +1,17 @@
+.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+.vscode/
+.idea/
+logs/
+*.log
+.DS_Store
+assets/books/*
+assets/gallery/*
+assets/music/*
+assets/station_content/*
+
