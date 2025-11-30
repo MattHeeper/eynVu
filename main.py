@@ -1,4 +1,7 @@
 import logging
+import os
+from flask import Flask, request
+from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler
 from config import Config
 from database import init_db, test_connection
@@ -12,11 +15,56 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Flask app for webhook
+app = Flask(__name__)
+
+# Global bot application
+bot_application = None
+
+
+def setup_application():
+    """Setup bot application"""
+    global bot_application
+    
+    # Create application
+    bot_application = Application.builder().token(Config.BOT_TOKEN).build()
+    
+    # Add handlers
+    bot_application.add_handler(CommandHandler("start", start_command))
+    bot_application.add_handler(CommandHandler("menu", menu_command))
+    bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
+    
+    return bot_application
+
+
+@app.route('/')
+def index():
+    """Health check endpoint"""
+    return {
+        "status": "running",
+        "bot": Config.BOT_NAME,
+        "version": Config.BOT_VERSION
+    }
+
+
+@app.route(f'/{Config.BOT_TOKEN}', methods=['POST'])
+async def webhook():
+    """Handle incoming updates from Telegram"""
+    try:
+        # Get update from request
+        update = Update.de_json(request.get_json(force=True), bot_application.bot)
+        
+        # Process update
+        await bot_application.process_update(update)
+        
+        return 'ok'
+    except Exception as e:
+        logger.error(f"Error processing update: {e}")
+        return 'error', 500
+
 
 def main():
-    """
-    Main function to run the bot
-    """
+    """Main function"""
     print("=" * 50)
     print(f"🤖 Starting {Config.BOT_NAME} Bot v{Config.BOT_VERSION}")
     print("=" * 50)
@@ -33,24 +81,31 @@ def main():
     
     print("\n✅ Database ready!")
     print(f"🔑 Admin ID: {Config.ADMIN_ID}")
-    print("\n🚀 Starting bot...\n")
     
-    # Create application
-    application = Application.builder().token(Config.BOT_TOKEN).build()
+    # Setup bot application
+    global bot_application
+    bot_application = setup_application()
     
-    # Add handlers
-    # Commands
-    application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(CommandHandler("menu", menu_command))
+    # Initialize bot
+    import asyncio
+    asyncio.run(bot_application.initialize())
+    asyncio.run(bot_application.start())
     
-    # Callback queries
-    application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
+    # Get webhook URL from environment (Render provides this)
+    webhook_url = os.getenv('RENDER_EXTERNAL_URL')
+    if webhook_url:
+        webhook_url = f"{webhook_url}/{Config.BOT_TOKEN}"
+        asyncio.run(bot_application.bot.set_webhook(url=webhook_url))
+        print(f"\n✅ Webhook set to: {webhook_url}")
+    else:
+        print("\n⚠️  No RENDER_EXTERNAL_URL found, webhook not set")
     
-    # Start bot
-    print("✅ Bot is running!")
-    print("Press Ctrl+C to stop\n")
+    print("\n🚀 Bot is ready!")
+    print(f"📡 Listening on port {os.getenv('PORT', 10000)}\n")
     
-    application.run_polling(allowed_updates=["message", "callback_query"])
+    # Run Flask app
+    port = int(os.getenv('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
 
 
 if __name__ == "__main__":
