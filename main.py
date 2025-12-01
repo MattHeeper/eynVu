@@ -3,12 +3,18 @@ import os
 import asyncio
 from flask import Flask, request
 from telegram import Update
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from config import Config
 from database import init_db, test_connection
 from handlers.start import start_command
 from handlers.menu import menu_command, handle_main_menu_callback
-
+from features.anonymous.handler import (
+    start_send_to_admin,
+    handle_anonymous_message,
+    confirm_send,
+    cancel_send,
+    edit_message_request
+)
 # Setup logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,10 +45,17 @@ print(f"🔑 Admin ID: {Config.ADMIN_ID}")
 bot_application = Application.builder().token(Config.BOT_TOKEN).build()
 
 # Add handlers
+# Add handlers
 bot_application.add_handler(CommandHandler("start", start_command))
 bot_application.add_handler(CommandHandler("menu", menu_command))
-bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
+bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback, pattern="^(back_to_main|send_letter|cafe_menu|leaderboard|lists|social_media|my_profile)$"))
 
+# Anonymous message handlers
+bot_application.add_handler(CallbackQueryHandler(start_send_to_admin, pattern="^send_to_admin$"))
+bot_application.add_handler(CallbackQueryHandler(confirm_send, pattern="^confirm_send_yes$"))
+bot_application.add_handler(CallbackQueryHandler(cancel_send, pattern="^(confirm_send_no|cancel)$"))
+bot_application.add_handler(CallbackQueryHandler(edit_message_request, pattern="^edit_message$"))
+bot_application.add_handler(MessageHandler(filters.TEXT | filters.PHOTO | filters.VOICE, handle_anonymous_message))
 print("✅ Handlers registered")
 
 # Initialize bot
