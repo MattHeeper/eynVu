@@ -24,17 +24,17 @@ bot_application = None
 
 def setup_application():
     """Setup bot application"""
-    global bot_application
-    
     # Create application
-    bot_application = Application.builder().token(Config.BOT_TOKEN).build()
+    application = Application.builder().token(Config.BOT_TOKEN).build()
     
     # Add handlers
-    bot_application.add_handler(CommandHandler("start", start_command))
-    bot_application.add_handler(CommandHandler("menu", menu_command))
-    bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CommandHandler("menu", menu_command))
+    application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
     
-    return bot_application
+    logger.info("✅ Handlers registered")
+    
+    return application
 
 
 @app.route('/')
@@ -48,15 +48,14 @@ def index():
 
 
 @app.route(f'/{Config.BOT_TOKEN}', methods=['POST'])
-def webhook():
+async def webhook():
     """Handle incoming updates from Telegram"""
     try:
         # Get update from request
         update = Update.de_json(request.get_json(force=True), bot_application.bot)
         
-        # Process update in async context
-        import asyncio
-        asyncio.run(bot_application.process_update(update))
+        # Process update
+        await bot_application.process_update(update)
         
         return 'ok'
     except Exception as e:
@@ -87,16 +86,19 @@ def main():
     global bot_application
     bot_application = setup_application()
     
-    # Initialize bot
+    # Initialize bot using asyncio
     import asyncio
-    asyncio.run(bot_application.initialize())
-    asyncio.run(bot_application.start())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     
-    # Get webhook URL from environment (Render provides this)
+    loop.run_until_complete(bot_application.initialize())
+    loop.run_until_complete(bot_application.start())
+    
+    # Get webhook URL from environment
     webhook_url = os.getenv('RENDER_EXTERNAL_URL')
     if webhook_url:
         webhook_url = f"{webhook_url}/{Config.BOT_TOKEN}"
-        asyncio.run(bot_application.bot.set_webhook(url=webhook_url))
+        loop.run_until_complete(bot_application.bot.set_webhook(url=webhook_url))
         print(f"\n✅ Webhook set to: {webhook_url}")
     else:
         print("\n⚠️  No RENDER_EXTERNAL_URL found, webhook not set")
