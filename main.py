@@ -80,21 +80,20 @@ def index():
 
 
 @app.route(f'/{Config.BOT_TOKEN}', methods=['POST'])
-async def webhook():
+def webhook():
     """Handle incoming updates from Telegram"""
     try:
         # Get update from request
         update_data = request.get_json(force=True)
         update = Update.de_json(update_data, bot_application.bot)
         
-        # Process update
-        await bot_application.process_update(update)
+        # Process update in async context
+        asyncio.run(bot_application.process_update(update))
         
         return 'ok'
     except Exception as e:
         logger.error(f"Error processing update: {e}", exc_info=True)
         return 'error', 500
-
 
 if __name__ == "__main__":
     port = int(os.getenv('PORT', 10000))
