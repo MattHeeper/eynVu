@@ -72,7 +72,7 @@ async def handle_message_input(update: Update, context: ContextTypes.DEFAULT_TYP
     )
 
 
-async def confirm_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def confirm_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Confirm and send anonymous message"""
     query = update.callback_query
     await query.answer()
