@@ -8,12 +8,11 @@ from config import Config
 from database import init_db, test_connection
 from handlers.start import start_command
 from handlers.menu import menu_command, handle_main_menu_callback
-from features.anonymous.handler import (
+from features.anonymous.send import (
     start_send_to_admin,
-    handle_anonymous_message,
-    confirm_send,
-    cancel_send,
-    edit_message_request
+    handle_message_input,
+    confirm_and_send,
+    cancel_send
 )
 # Setup logging
 logging.basicConfig(
@@ -45,10 +44,10 @@ print(f"🔑 Admin ID: {Config.ADMIN_ID}")
 bot_application = Application.builder().token(Config.BOT_TOKEN).build()
 
 # Add handlers
-# Add handlers
-bot_application.add_handler(CommandHandler("start", start_command))
-bot_application.add_handler(CommandHandler("menu", menu_command))
-bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback, pattern="^(back_to_main|send_letter|cafe_menu|leaderboard|lists|social_media|my_profile)$"))
+bot_application.add_handler(CallbackQueryHandler(start_send_to_admin, pattern="^send_to_admin$"))
+bot_application.add_handler(CallbackQueryHandler(confirm_and_send, pattern="^confirm_send$"))
+bot_application.add_handler(CallbackQueryHandler(cancel_send, pattern="^cancel_send$"))
+bot_application.add_handler(MessageHandler(filters.TEXT | filters.PHOTO | filters.VOICE, handle_message_input))
 
 # Anonymous message handlers
 bot_application.add_handler(CallbackQueryHandler(start_send_to_admin, pattern="^send_to_admin$"))
