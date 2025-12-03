@@ -13,10 +13,7 @@ from utils.messages import (
 
 
 async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Handle /menu command
-    Show main menu
-    """
+    """Handle /menu command"""
     await update.message.reply_text(
         get_main_menu_text(),
         reply_markup=get_main_menu_keyboard()
@@ -24,9 +21,7 @@ async def menu_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def handle_main_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """
-    Handle callback queries for main menu
-    """
+    """Handle main menu callbacks"""
     query = update.callback_query
     await query.answer()
     
@@ -53,28 +48,25 @@ async def handle_main_menu_callback(update: Update, context: ContextTypes.DEFAUL
             reply_markup=get_cafe_menu_keyboard()
         )
     
-    # Leaderboard (placeholder)
+    # Other menus (placeholder)
     elif callback_data == "leaderboard":
         await query.edit_message_text(
             "🏆 لیدربورد\n\n🚧 این بخش در حال توسعه است...",
             reply_markup=get_main_menu_keyboard()
         )
     
-    # Lists (placeholder)
     elif callback_data == "lists":
         await query.edit_message_text(
             "📋 لیست‌ها\n\n🚧 این بخش در حال توسعه است...",
             reply_markup=get_main_menu_keyboard()
         )
     
-    # Social media (placeholder)
     elif callback_data == "social_media":
         await query.edit_message_text(
             "🔗 سوشال مدیا\n\n🚧 این بخش در حال توسعه است...",
             reply_markup=get_main_menu_keyboard()
         )
     
-    # My profile (placeholder)
     elif callback_data == "my_profile":
         await query.edit_message_text(
             "👤 پروفایل من\n\n🚧 این بخش در حال توسعه است...",
