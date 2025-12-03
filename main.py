@@ -39,7 +39,7 @@ if not init_db():
     exit(1)
 
 print("\n✅ Database ready!")
-print(f"🔑 Admin ID: {Config.ADMIN_ID")
+print(f"🔑 Admin ID: {Config.ADMIN_ID}")
 
 # Setup bot application
 bot_application = Application.builder().token(Config.BOT_TOKEN).build()
@@ -51,7 +51,7 @@ bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
 
 print("✅ Handlers registered")
 
-# Initialize bot.
+# Initialize bot
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
@@ -105,5 +105,3 @@ def webhook():
 if __name__ == "__main__":
     port = int(os.getenv('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
-
-
