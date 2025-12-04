@@ -63,5 +63,3 @@ def test_connection():
 # Test on import
 if __name__ != "__main__":
     test_connection()
-
-
