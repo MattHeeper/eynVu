@@ -28,6 +28,7 @@ def get_send_letter_keyboard():
         [InlineKeyboardButton("📨 ارسال به عِین", callback_data="send_to_admin")],
         [InlineKeyboardButton("👥 ارسال به ادمین", callback_data="send_to_admins")],
         [InlineKeyboardButton("👤 ارسال به کاربر ناشناس", callback_data="send_to_user")],
+        [InlineKeyboardButton("📋 قوانین پیام ناشناس", callback_data="rule_as")],
         [InlineKeyboardButton("🔙 برگشت به منوی اصلی", callback_data="back_to_main")]
     ]
     return InlineKeyboardMarkup(keyboard)

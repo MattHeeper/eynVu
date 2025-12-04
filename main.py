@@ -8,6 +8,7 @@ from config import Config
 from database import init_db, test_connection
 from handlers.start import start_command
 from handlers.menu import menu_command, handle_main_menu_callback
+from handlers.rules import rules_command, show_rule_as, back_to_rules, close_rules
 from features.anonymous.send import (
     start_send_to_admin,
     start_send_to_admins,
@@ -44,7 +45,7 @@ if not init_db():
 print("\n✅ Database ready!")
 print(f"🔑 Admin ID: {Config.ADMIN_ID}")
 
-# Setup bot application
+# setup bot application
 bot_application = Application.builder().token(Config.BOT_TOKEN).build()
 
 # Add handlers
@@ -64,6 +65,12 @@ bot_application.add_handler(CallbackQueryHandler(start_send_to_user, pattern="^s
 bot_application.add_handler(CallbackQueryHandler(start_send_to_specific, pattern="^send_to_specific_"))
 bot_application.add_handler(CallbackQueryHandler(confirm_send, pattern="^confirm_send$"))
 bot_application.add_handler(CallbackQueryHandler(cancel_send, pattern="^cancel_send$"))
+
+# Rules handlers
+bot_application.add_handler(CommandHandler("rules", rules_command))
+bot_application.add_handler(CallbackQueryHandler(show_rule_as, pattern="^rule_as$"))
+bot_application.add_handler(CallbackQueryHandler(back_to_rules, pattern="^back_to_rules$"))
+bot_application.add_handler(CallbackQueryHandler(close_rules, pattern="^close_rules$"))
 
 # Message handler (must be last!)
 bot_application.add_handler(MessageHandler(

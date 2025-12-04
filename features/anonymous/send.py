@@ -104,8 +104,18 @@ async def handle_identifier_input(update: Update, context: ContextTypes.DEFAULT_
         target_user = db.query(User).filter(User.identifier == identifier).first()
         
         if not target_user:
+            from difflib import get_close_matches
+            all_identifiers = [u.identifier for u in db.query(User.identifier).all()]
+            suggestions = get_close_matches(identifier, all_identifiers, n=3, cutoff=0.6)
+            
+            suggestion_text = ""
+            if suggestions:
+                suggestion_text = "\n\n🔍 شاید منظورت یکی از این‌ها بود:\n"
+                for sugg in suggestions:
+                    suggestion_text += f"  › `{sugg}`\n"
+            
             await update.message.reply_text(
-                "❌ کاربر با این شناسه یافت نشد\n\nدوباره تلاش کن:",
+                f"❌ کاربر با شناسه `{identifier}` یافت نشد{suggestion_text}\n\nدوباره تلاش کن:",
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("❌ لغو", callback_data="cancel_send")
                 ]])
@@ -127,7 +137,6 @@ async def handle_identifier_input(update: Update, context: ContextTypes.DEFAULT_
         )
     finally:
         db.close()
-
 
 async def start_send_to_specific(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start sending to specific admin"""
