@@ -14,6 +14,16 @@ class Config:
     BOT_TOKEN = os.getenv("BOT_TOKEN")
     ADMIN_ID = int(os.getenv("ADMIN_ID", 0))
     
+    # List of all admins (including main admin)
+    ADMIN_IDS = [
+        1996510914,  # Main admin (you)
+        7630717420,
+        7106452357,
+        6825300896,
+        7483115193,
+        6532137789
+    ]
+    
     # Database Configuration
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = int(os.getenv("DB_PORT", 5432))
@@ -43,6 +53,11 @@ class Config:
     # Identifier Format
     IDENTIFIER_PREFIX = "Ua"  # User anonymous
     STATION_PREFIX = "Rs"     # Radio station
+    
+    @classmethod
+    def is_admin(cls, telegram_id: int) -> bool:
+        """Check if user is admin"""
+        return telegram_id in cls.ADMIN_IDS
     
     @classmethod
     def validate(cls):
