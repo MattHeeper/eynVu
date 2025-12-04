@@ -10,6 +10,9 @@ from handlers.start import start_command
 from handlers.menu import menu_command, handle_main_menu_callback
 from features.anonymous.send import (
     start_send_to_admin,
+    start_send_to_admins,
+    start_send_to_user,
+    start_send_to_specific,
     handle_message_input,
     confirm_send,
     cancel_send
@@ -47,7 +50,26 @@ bot_application = Application.builder().token(Config.BOT_TOKEN).build()
 # Add handlers
 bot_application.add_handler(CommandHandler("start", start_command))
 bot_application.add_handler(CommandHandler("menu", menu_command))
-bot_application.add_handler(CallbackQueryHandler(handle_main_menu_callback))
+
+# Main menu callback handler (با pattern محدود برای جلوگیری از تداخل)
+bot_application.add_handler(CallbackQueryHandler(
+    handle_main_menu_callback,
+    pattern="^(back_to_main|send_letter|cafe_menu|leaderboard|lists|social_media|my_profile)$"
+))
+
+# Anonymous message handlers
+bot_application.add_handler(CallbackQueryHandler(start_send_to_admin, pattern="^send_to_admin$"))
+bot_application.add_handler(CallbackQueryHandler(start_send_to_admins, pattern="^send_to_admins$"))
+bot_application.add_handler(CallbackQueryHandler(start_send_to_user, pattern="^send_to_user$"))
+bot_application.add_handler(CallbackQueryHandler(start_send_to_specific, pattern="^send_to_specific_"))
+bot_application.add_handler(CallbackQueryHandler(confirm_send, pattern="^confirm_send$"))
+bot_application.add_handler(CallbackQueryHandler(cancel_send, pattern="^cancel_send$"))
+
+# Message handler (must be last!)
+bot_application.add_handler(MessageHandler(
+    filters.TEXT | filters.PHOTO | filters.VOICE,
+    handle_message_input
+))
 
 print("✅ Handlers registered")
 
