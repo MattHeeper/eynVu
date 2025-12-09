@@ -20,11 +20,12 @@ class User(Base):
     
     # eynVu Info
     identifier = Column(String(20), unique=True, nullable=False, index=True)  # Ua1@gb2h
-    nickname = Column(String(13), nullable=True)  # نام مستعار (max 13 chars)
+    nickname = Column(String(13), nullable=True)  # max 13 chars
+    share_code = Column(String(9), unique=True, nullable=False, index=True)  # 6-9 chars for share links
     
     # Membership Info
     join_date = Column(DateTime(timezone=True), server_default=func.now())
-    member_number = Column(Integer, nullable=False)  # نفر چندم عضو شده
+    member_number = Column(Integer, nullable=False)
     
     # Stats
     total_messages_sent = Column(Integer, default=0)
@@ -34,12 +35,12 @@ class User(Base):
     # Permissions & Roles
     is_vip = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
-    titles = Column(Text, nullable=True)  # JSON string of titles (e.g., ["Radio Host", "Librarian"])
+    titles = Column(Text, nullable=True)  # JSON string of titles
     
     # Status
-    is_blocked = Column(Boolean, default=False)  # بلاک شده
-    is_kicked = Column(Boolean, default=False)  # کیک شده
-    muted_until = Column(DateTime(timezone=True), nullable=True)  # مسدود تا
+    is_blocked = Column(Boolean, default=False)
+    is_kicked = Column(Boolean, default=False)
+    muted_until = Column(DateTime(timezone=True), nullable=True)
     
     # Activity
     last_activity = Column(DateTime(timezone=True), onupdate=func.now())

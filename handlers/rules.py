@@ -26,6 +26,47 @@ async def rules_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def rule_as_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle /rule_as command - direct access to anonymous messaging rules"""
+    text = """
+📨 قوانین پیام ناشناس (Anonymous Messaging)
+
+━━━━━━━━━━━━━━━━━━━━
+
+⚠️ نکات مهم:
+
+🔹 پیام‌های شما به صورت کاملاً ناشناس ارسال می‌شود
+
+🔹 در نامه‌ها به دیگران توهین نکنید
+   › هرگونه مشاهده و گزارش این‌گونه پیام‌ها منجر به بن دائمی شما خواهد شد
+
+🔹 ارسال تصاویر، ویدیو و محتوای نامناسب ممنوع
+   › ارسال محتوایی با هدف آزار و اذیت دیگران مشاهده و بررسی می‌شود
+
+🔹 از ارسال مکرر و اسپم خودداری کنید
+   › ارسال بیش از حد پیام به یک نفر = بن موقت
+
+━━━━━━━━━━━━━━━━━━━━
+
+💬 گزارش مشکلات:
+
+مشکلات و پیشنهادات خود را با باز کردن تیکت با ما در میان بگذارید.
+
+⚠️ لطفاً مشکلات را از طریق پیام ناشناس ارسال نکنید.
+
+━━━━━━━━━━━━━━━━━━━━
+
+با رعایت این قوانین، به ایجاد فضایی دوستانه و امن کمک کنید 💚
+"""
+    
+    keyboard = [[InlineKeyboardButton("🔙 بستن", callback_data="close_rules")]]
+    
+    await update.message.reply_text(
+        text,
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+
 async def show_rule_as(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show anonymous messaging rules"""
     query = update.callback_query
@@ -62,7 +103,7 @@ async def show_rule_as(update: Update, context: ContextTypes.DEFAULT_TYPE):
 با رعایت این قوانین، به ایجاد فضایی دوستانه و امن کمک کنید 💚
 """
     
-    keyboard = [[InlineKeyboardButton("🔙 برگشت به قوانین", callback_data="back_to_rules")]]
+    keyboard = [[InlineKeyboardButton("🔙 برگشت به ارسال نامه", callback_data="send_letter")]]
     
     await query.edit_message_text(
         text,
