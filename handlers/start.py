@@ -30,12 +30,20 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             User.telegram_id == user.id
         ).first()
         
-        # Handle share link
-        if share_code and existing_user:
-            await handle_share_link(update, context, existing_user, share_code, db)
-            return
-        
         if existing_user:
+            # Check if user has share_code, if not generate one
+            if not existing_user.share_code:
+                user_share_code = generate_share_code()
+                while not is_share_code_unique(user_share_code, db):
+                    user_share_code = generate_share_code()
+                existing_user.share_code = user_share_code
+                db.commit()
+            
+            # Handle share link
+            if share_code and share_code != existing_user.share_code:
+                await handle_share_link(update, context, existing_user, share_code, db)
+                return
+            
             # Existing user - show main menu
             await update.message.reply_text(
                 get_main_menu_text(),
@@ -109,7 +117,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         import traceback
         traceback.print_exc()
         await update.message.reply_text(
-            "❌ خطایی رخ داد. لطفاً دوباره تلاش کنید."
+            "❌ خطایی رخ داد. لطفاً دوباره تلاش کنید.\n\n"
+            "اگر مشکل ادامه داشت، با ادمین تماس بگیرید."
         )
     finally:
         db.close()
