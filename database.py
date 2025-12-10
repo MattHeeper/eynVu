@@ -29,12 +29,14 @@ Base = declarative_base()
 def init_db():
     """Initialize database and create all tables"""
     try:
-        from models import user, identifier, log
+        from models import user, identifier, log, message
         Base.metadata.create_all(bind=engine)
         print("✅ Database tables created successfully!")
         return True
     except Exception as e:
         print(f"❌ Database initialization failed: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
@@ -57,6 +59,8 @@ def test_connection():
         return True
     except Exception as e:
         print(f"❌ Database connection failed: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 

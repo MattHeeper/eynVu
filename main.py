@@ -42,6 +42,14 @@ if not init_db():
     logger.error("Failed to initialize database. Exiting...")
     exit(1)
 
+# Run migration if needed
+try:
+    print("\n🔧 Checking database schema...")
+    from add_share_code_column import add_share_code_column
+    add_share_code_column()
+except Exception as e:
+    print(f"⚠️ Migration check failed: {e}")
+
 print("\n✅ Database ready!")
 print(f"🔑 Admin ID: {Config.ADMIN_ID}")
 

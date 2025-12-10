@@ -21,7 +21,7 @@ class User(Base):
     # eynVu Info
     identifier = Column(String(20), unique=True, nullable=False, index=True)  # Ua1@gb2h
     nickname = Column(String(13), nullable=True)  # max 13 chars
-    share_code = Column(String(9), unique=True, nullable=False, index=True)  # 6-9 chars for share links
+    share_code = Column(String(9), unique=True, nullable=True, index=True)  # 6-9 chars for share links
     
     # Membership Info
     join_date = Column(DateTime(timezone=True), server_default=func.now())
