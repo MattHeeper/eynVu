@@ -115,69 +115,31 @@ def index():
     }
 
 
-@app.route('/migrate')
-def run_migration():
-    """Run database migration - visit this URL once to add share_code column"""
+@app.route('/reset-database')
+def reset_database():
+    """⚠️ WARNING: This will delete ALL data and recreate tables"""
     try:
         from sqlalchemy import text
-        from utils.share_code import generate_share_code, is_share_code_unique
         
-        db = Session()
+        # Drop all tables
+        Base.metadata.drop_all(bind=engine)
         
-        # Check if column exists
-        check_query = text("""
-            SELECT column_name 
-            FROM information_schema.columns 
-            WHERE table_name='users' AND column_name='share_code';
-        """)
-        
-        result = db.execute(check_query).fetchone()
-        
-        if result:
-            db.close()
-            return {"status": "already_migrated", "message": "share_code column already exists!"}
-        
-        # Add column
-        alter_query = text("ALTER TABLE users ADD COLUMN share_code VARCHAR(9) NULL;")
-        db.execute(alter_query)
-        db.commit()
-        
-        # Add index
-        index_query = text("CREATE INDEX ix_users_share_code ON users (share_code);")
-        db.execute(index_query)
-        db.commit()
-        
-        # Generate share codes for existing users
-        from models.user import User
-        users = db.query(User).filter(
-            (User.share_code == None) | (User.share_code == '')
-        ).all()
-        
-        for user in users:
-            user_share_code = generate_share_code()
-            while not is_share_code_unique(user_share_code, db):
-                user_share_code = generate_share_code()
-            user.share_code = user_share_code
-        
-        db.commit()
-        
-        # Add unique constraint
-        constraint_query = text("ALTER TABLE users ADD CONSTRAINT uq_users_share_code UNIQUE (share_code);")
-        db.execute(constraint_query)
-        db.commit()
-        
-        db.close()
+        # Recreate all tables with new schema
+        from models import user, identifier, log, message
+        Base.metadata.create_all(bind=engine)
         
         return {
             "status": "success",
-            "message": "Migration completed successfully!",
-            "users_updated": len(users)
+            "message": "Database reset successfully! All tables recreated with share_code column.",
+            "warning": "All previous data has been deleted."
         }
         
     except Exception as e:
+        import traceback
         return {
             "status": "error",
-            "message": str(e)
+            "message": str(e),
+            "traceback": traceback.format_exc()
         }, 500
 
 
